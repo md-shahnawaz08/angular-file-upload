@@ -1,0 +1,6 @@
+<ngx-dropzone (change)="onSelect($event)">
+    <ngx-dropzone-label>Drag n' drop some files here, or click to select files</ngx-dropzone-label>
+    <ngx-dropzone-preview *ngFor="let f of files" [removable]="true" (removed)="onRemove(f)">
+        <ngx-dropzone-label>{{ f.name }} - {{ f.size }} bytes</ngx-dropzone-label>
+    </ngx-dropzone-preview>
+</ngx-dropzone>
