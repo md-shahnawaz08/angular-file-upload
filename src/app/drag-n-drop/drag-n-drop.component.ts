@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Upload } from 'tus-js-client';
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
   selector: 'app-drag-n-drop',
@@ -7,26 +9,53 @@ import { Component } from '@angular/core';
 })
 export class DragNDropComponent {
 
-  files: File[] = [];
+  private endpoint = "https://master.tus.io/files/";
+  private retryDelays = [0, 3000, 5000, 10000, 20000];
+  files: any[] = [];
+  uploadedFiles = {};
  
   onSelect(event) {
-    this.files.push(...event.addedFiles);
-
-    event.addedFiles.forEach((file) => {
-      const reader = new FileReader()
- 
-      reader.onabort = () => console.log('file reading was aborted')
-      reader.onerror = () => console.log('file reading has failed')
-      reader.onload = () => {
-      // Do whatever you want with the file contents
-        const binaryStr = reader.result
-        console.log(binaryStr)
-      }
-      reader.readAsArrayBuffer(file)
-    })
+    this.files.push(...event.addedFiles.map(file => {
+      file.id = uuidv4();
+      return file;
+    }));
   }
   
   onRemove(event) {
     this.files.splice(this.files.indexOf(event), 1);
+  }
+
+  onUpload() {
+    this.files.forEach(file => {
+      const upload: any = new Upload(file, {
+        endpoint: this.endpoint,
+        retryDelays: this.retryDelays,
+        metadata: {
+            filename: file.name,
+            filetype: file.type
+        },
+        onError: (e) => {
+          alert(e)
+        },
+        onProgress: (bytesUploaded, bytesTotal) => {
+          var percentage = (bytesUploaded / bytesTotal * 100).toFixed(2);
+          file.bytesUploaded = bytesUploaded;
+          file.bytesTotal = bytesTotal;
+          file.percentage = `${percentage}%`;
+          this.uploadedFiles[file.id] = file;     
+        },
+        onSuccess: () => {
+          file.uploadedName = upload.file.name;
+          file.uploadedUrl = upload.url;
+          this.uploadedFiles[file.id] = file;
+          this.files = this.files.filter(f => file.id != f.id);
+        }
+      });
+      upload.start();
+    });
+  }
+
+  getUploadedFiles(): any[] {
+    return Object.values(this.uploadedFiles);
   }
 }

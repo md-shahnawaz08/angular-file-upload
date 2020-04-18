@@ -4,3 +4,14 @@
         <ngx-dropzone-label>{{ f.name }} - {{ f.size }} bytes</ngx-dropzone-label>
     </ngx-dropzone-preview>
 </ngx-dropzone>
+<button type="button" class="upload-button" (click)="onUpload()">Upload Files</button>
+<div *ngIf="getUploadedFiles().length">
+    <h3>Uploaded Files</h3>
+    <ul>
+        <li *ngFor="let file of getUploadedFiles()">
+            {{ file.uploadedName || file.name }}
+            - {{ file.percentage }} - {{ file.bytesUploaded }} bytes of {{ file.bytesTotal }} bytes - 
+            <a [href]="file.uploadedUrl" target="_blank">Click here</a>
+        </li>
+    </ul>
+</div>
