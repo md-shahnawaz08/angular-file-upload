@@ -11,7 +11,7 @@
         <li *ngFor="let file of getUploadedFiles()">
             {{ file.uploadedName || file.name }}
             - {{ file.percentage }} - {{ file.bytesUploaded }} bytes of {{ file.bytesTotal }} bytes - 
-            <a [href]="file.uploadedUrl" target="_blank">Click here</a>
+            <a [href]="file.uploadedUrl" target="_blank" *ngIf="file.uploadedUrl">Click here</a>
         </li>
     </ul>
 </div>

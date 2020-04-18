@@ -38,6 +38,7 @@ export class DragNDropComponent {
           alert(e)
         },
         onProgress: (bytesUploaded, bytesTotal) => {
+          this.files = this.files.filter(f => file.id != f.id);
           var percentage = (bytesUploaded / bytesTotal * 100).toFixed(2);
           file.bytesUploaded = bytesUploaded;
           file.bytesTotal = bytesTotal;
@@ -48,7 +49,6 @@ export class DragNDropComponent {
           file.uploadedName = upload.file.name;
           file.uploadedUrl = upload.url;
           this.uploadedFiles[file.id] = file;
-          this.files = this.files.filter(f => file.id != f.id);
         }
       });
       upload.start();
