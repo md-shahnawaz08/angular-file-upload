@@ -13,6 +13,7 @@ export class DragNDropComponent {
   private retryDelays = [0, 3000, 5000, 10000, 20000];
   files: any[] = [];
   uploadedFiles = {};
+  uploadTasks = {};
  
   onSelect(event) {
     this.files.push(...event.addedFiles.map(file => {
@@ -42,7 +43,7 @@ export class DragNDropComponent {
           var percentage = (bytesUploaded / bytesTotal * 100).toFixed(2);
           file.bytesUploaded = bytesUploaded;
           file.bytesTotal = bytesTotal;
-          file.percentage = `${percentage}%`;
+          file.percentage = percentage;
           this.uploadedFiles[file.id] = file;     
         },
         onSuccess: () => {
@@ -51,8 +52,19 @@ export class DragNDropComponent {
           this.uploadedFiles[file.id] = file;
         }
       });
+      this.uploadTasks[file.id] = { upload };
       upload.start();
     });
+  }
+
+  onPause(id: string) {
+    this.uploadTasks[id].upload.abort();
+    this.uploadTasks[id].paused = true;
+  }
+
+  onResume(id: string) {
+    this.uploadTasks[id].upload.start();
+    this.uploadTasks[id].paused = false;
   }
 
   getUploadedFiles(): any[] {

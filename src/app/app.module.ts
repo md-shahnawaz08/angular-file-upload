@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { NgxDropzoneModule } from 'ngx-dropzone';
+import { ProgressBarModule } from "angular-progress-bar"
 
 import { AppComponent } from './app.component';
 import { DragNDropComponent } from './drag-n-drop/drag-n-drop.component';
@@ -12,7 +13,8 @@ import { DragNDropComponent } from './drag-n-drop/drag-n-drop.component';
   ],
   imports: [
     BrowserModule,
-    NgxDropzoneModule
+    NgxDropzoneModule,
+    ProgressBarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

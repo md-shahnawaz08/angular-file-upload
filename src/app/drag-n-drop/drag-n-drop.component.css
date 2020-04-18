@@ -1,7 +1,15 @@
-.upload-button {
-    margin: 1rem 0;
-    height: 2rem;
+.button {
+    margin-top: 0.5rem;
+    height: 1.75rem;
     font-weight: 600;
     border-radius: 0.5rem;
     background: whitesmoke;
+}
+
+.button:hover {
+    background: lightgray;
+}
+
+.full-width {
+    width: 100%
 }
