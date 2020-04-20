@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Upload } from 'tus-js-client';
+import * as S3 from 'aws-sdk/clients/s3';
 import { v4 as uuidv4 } from 'uuid';
 
 @Component({
@@ -9,11 +9,20 @@ import { v4 as uuidv4 } from 'uuid';
 })
 export class DragNDropComponent {
 
-  private endpoint = "https://master.tus.io/files/";
-  private retryDelays = [0, 3000, 5000, 10000, 20000];
+  private bucket = new S3({
+    apiVersion: '2006-03-01',
+    region: 'us-west-2',
+    credentials: {
+      accessKeyId: 'AKIAJ7OTALLGYW64YWTQ',
+      secretAccessKey: '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'
+    }
+  });
+  private bucketName = 'dguptaawsbucket';
+  folder = ''
   files: any[] = [];
   uploadedFiles = {};
   uploadTasks = {};
+
  
   onSelect(event) {
     this.files.push(...event.addedFiles.map(file => {
@@ -28,43 +37,29 @@ export class DragNDropComponent {
 
   onUpload() {
     this.files.forEach(file => {
-      const upload: any = new Upload(file, {
-        endpoint: this.endpoint,
-        retryDelays: this.retryDelays,
-        metadata: {
-            filename: file.name,
-            filetype: file.type
-        },
-        onError: (e) => {
-          alert(e)
-        },
-        onProgress: (bytesUploaded, bytesTotal) => {
-          this.files = this.files.filter(f => file.id != f.id);
-          var percentage = (bytesUploaded / bytesTotal * 100).toFixed(2);
-          file.bytesUploaded = bytesUploaded;
-          file.bytesTotal = bytesTotal;
-          file.percentage = percentage;
-          this.uploadedFiles[file.id] = file;     
-        },
-        onSuccess: () => {
-          file.uploadedName = upload.file.name;
-          file.uploadedUrl = upload.url;
-          this.uploadedFiles[file.id] = file;
+      const params = {
+        Bucket: this.bucketName,
+        Key: this.folder + file.name,
+        Body: file,
+        ACL: 'public-read',
+        ContentType: file.type
+      };
+
+      this.bucket.upload(params).on('httpUploadProgress', evt => {
+        this.files = this.files.filter(f => file.id != f.id);
+        file.loaded = evt.loaded;
+        file.total = evt.total;
+        file.percentage = evt.loaded / evt.total * 100;
+        this.uploadedFiles[file.id] = file;
+      }).send((err, data) => {
+        if (err) {
+            alert(err);
+            return;
         }
+        file.location = data.Location;
+        this.uploadedFiles[file.id] = file;
       });
-      this.uploadTasks[file.id] = { upload };
-      upload.start();
     });
-  }
-
-  onPause(id: string) {
-    this.uploadTasks[id].upload.abort();
-    this.uploadTasks[id].paused = true;
-  }
-
-  onResume(id: string) {
-    this.uploadTasks[id].upload.start();
-    this.uploadTasks[id].paused = false;
   }
 
   getUploadedFiles(): any[] {

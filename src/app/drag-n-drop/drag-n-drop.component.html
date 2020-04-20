@@ -1,26 +1,20 @@
+<h4><label for="folderInput" class="compulsory">Folder Name: </label>
+    <input type="text" [(ngModel)]="folder" class="folder-input"/></h4>
 <ngx-dropzone (change)="onSelect($event)">
     <ngx-dropzone-label>Drag n' drop some files here, or click to select files</ngx-dropzone-label>
     <ngx-dropzone-preview *ngFor="let f of files" [removable]="true" (removed)="onRemove(f)">
         <ngx-dropzone-label>{{ f.name }} - {{ f.size }} bytes</ngx-dropzone-label>
     </ngx-dropzone-preview>
 </ngx-dropzone>
-<button type="button" class="button" (click)="onUpload()">Upload Files</button>
+<button type="button" class="button" (click)="folder && files.length && onUpload()" [disabled]="!folder">Upload Files</button>
 <div *ngIf="getUploadedFiles().length">
     <h3>Uploaded Files</h3>
     <table class="full-width">
         <tr *ngFor="let file of getUploadedFiles()">
-            <td>{{ file.uploadedName || file.name }}</td>
-            <td><progress-bar [progress]="file.percentage"></progress-bar></td>
+            <td>{{ file.name }}</td>
             <td>
-                <a [href]="file.uploadedUrl" target="_blank" *ngIf="file.uploadedUrl">Click here to download</a>
-                <button type="button" *ngIf="!file.uploadedUrl && uploadTasks[file.id].paused"
-                    (click)="onResume(file.id)" class="button">
-                    Resume
-                </button>
-                <button type="button" *ngIf="!file.uploadedUrl && !uploadTasks[file.id].paused"
-                    (click)="onPause(file.id)" class="button">
-                    Pause
-                </button>
+                <progress-bar [progress]="file.percentage"
+                    [color-degraded]="{'0': '#007bff', '100': '#28a745'}"></progress-bar>
             </td>
         </tr>
     </table>

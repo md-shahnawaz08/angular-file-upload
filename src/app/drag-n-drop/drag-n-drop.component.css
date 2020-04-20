@@ -13,3 +13,15 @@
 .full-width {
     width: 100%
 }
+
+.folder-input {
+    height: 1.2rem;
+    width: 20rem;
+    border-radius: .5rem;
+    margin: 0 1rem;
+}
+
+.compulsory::before{
+    content: '*';
+    color: red;
+}
