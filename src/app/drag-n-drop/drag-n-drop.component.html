@@ -1,12 +1,19 @@
-<h4><label for="folderInput" class="compulsory">Folder Name: </label>
-    <input type="text" [(ngModel)]="folder" class="folder-input"/></h4>
+<h4>
+  <label for="folderInput" class="compulsory">Folder Name: </label>
+  <input type="text" [(ngModel)]="folder" class="folder-input"/>
+</h4>
+
+<h4><button type="button" class="button" (click)="onLoading()" [disabled]="!folder">Check Upload Area</button></h4>
+
 <ngx-dropzone (change)="onSelect($event)">
     <ngx-dropzone-label>Drag n' drop some files here, or click to select files</ngx-dropzone-label>
     <ngx-dropzone-preview *ngFor="let f of files" [removable]="true" (removed)="onRemove(f)">
         <ngx-dropzone-label>{{ f.name }} - {{ f.size }} bytes</ngx-dropzone-label>
     </ngx-dropzone-preview>
 </ngx-dropzone>
+
 <button type="button" class="button" (click)="folder && files.length && onUpload()" [disabled]="!folder">Upload Files</button>
+
 <div *ngIf="getUploadedFiles().length">
     <h3>Uploaded Files</h3>
     <table class="full-width">
@@ -18,4 +25,6 @@
             </td>
         </tr>
     </table>
+
+  <h4><button type="button" class="button" (click)="onPush()" [disabled]="!folder">Notify</button></h4>
 </div>

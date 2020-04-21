@@ -13,33 +13,32 @@ export class DragNDropComponent {
     apiVersion: '2006-03-01',
     region: 'us-west-2',
     credentials: {
-      accessKeyId: 'AKIAJ7OTALLGYW64YWTQ',
-      secretAccessKey: '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'
+      accessKeyId: 'my-key',
+      secretAccessKey: 'my-secret-key'
     }
   });
+
   private bucketName = 'dguptaawsbucket';
   folder = ''
   files: any[] = [];
   uploadedFiles = {};
-  uploadTasks = {};
 
- 
   onSelect(event) {
     this.files.push(...event.addedFiles.map(file => {
       file.id = uuidv4();
       return file;
     }));
   }
-  
+
   onRemove(event) {
     this.files.splice(this.files.indexOf(event), 1);
   }
 
   onUpload() {
-    this.files.forEach(file => {
+    for (const file of this.files) {
       const params = {
         Bucket: this.bucketName,
-        Key: this.folder + file.name,
+        Key: this.folder + '/' + file.name,
         Body: file,
         ACL: 'public-read',
         ContentType: file.type
@@ -53,13 +52,34 @@ export class DragNDropComponent {
         this.uploadedFiles[file.id] = file;
       }).send((err, data) => {
         if (err) {
-            alert(err);
-            return;
+          alert(err);
+          return;
         }
         file.location = data.Location;
         this.uploadedFiles[file.id] = file;
       });
-    });
+    }
+  }
+
+  async onLoading(): Promise<any[]> {
+    this.bucket.headObject({
+        Bucket: this.bucketName,
+        Key: this.folder + '/',
+      })
+      .promise()
+      .then(
+        () => true,
+        err => {
+          if (err.code === 'NotFound') {
+            return false;
+          }
+          throw err;
+        }
+      );
+  }
+
+  onPush(){
+
   }
 
   getUploadedFiles(): any[] {
