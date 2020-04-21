@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import * as S3 from 'aws-sdk/clients/s3';
 import { v4 as uuidv4 } from 'uuid';
+import { Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-drag-n-drop',
@@ -13,8 +14,8 @@ export class DragNDropComponent {
     apiVersion: '2006-03-01',
     region: 'us-west-2',
     credentials: {
-      accessKeyId: 'my-key',
-      secretAccessKey: 'my-secret-key'
+      accessKeyId: 'my key',
+      secretAccessKey: 'my secret key'
     }
   });
 
@@ -22,6 +23,9 @@ export class DragNDropComponent {
   folder = ''
   files: any[] = [];
   uploadedFiles = {};
+  toShow = true;
+  isValid = false;
+  email: any;
 
   onSelect(event) {
     this.files.push(...event.addedFiles.map(file => {
@@ -61,21 +65,30 @@ export class DragNDropComponent {
     }
   }
 
-  async onLoading(): Promise<any[]> {
+  async onLoading(): Promise<boolean> {
     this.bucket.headObject({
         Bucket: this.bucketName,
         Key: this.folder + '/',
       })
       .promise()
       .then(
-        () => true,
+        () =>
+        {
+          this.isValid = true;
+          this.toShow = true;
+          return this.isValid;
+        },
         err => {
           if (err.code === 'NotFound') {
-            return false;
+            this.toShow = false;
+            this.isValid = false;
+            return this.isValid;
           }
           throw err;
         }
       );
+
+    return this.isValid;
   }
 
   onPush(){
