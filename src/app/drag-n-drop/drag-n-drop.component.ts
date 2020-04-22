@@ -14,8 +14,8 @@ export class DragNDropComponent {
     apiVersion: '2006-03-01',
     region: 'us-west-2',
     credentials: {
-      accessKeyId: 'AKIAIKGZLTRXVRRU5Y4Q',
-      secretAccessKey: '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'
+      accessKeyId: 'my-hey',
+      secretAccessKey: 'my-secret-key'
     }
   });
 
