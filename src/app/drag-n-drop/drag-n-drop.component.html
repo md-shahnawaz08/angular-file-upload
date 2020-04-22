@@ -1,12 +1,13 @@
 <h4>
-  <label for="email" class="compulsory">Email: </label>
+  <label class="compulsory">Email: </label>
   <input type="text" [(ngModel)]="email" class="folder-input" required="true"/>
   <br/><br/>
-  <label for="folder" class="compulsory">UUID: </label>
-  <input type="text" [(ngModel)]="folder" class="folder-input" required="true"/>
+  <label class="compulsory">UUID: </label>
+  <input type="text" [(ngModel)]="folder" class="folder-input" required="true" [attr.disabled]="tbDisabled ? '' : null"/>
 </h4>
 
-<h4><button type="button" class="button" (click)="onLoading()" [disabled]="!folder">Check Upload Area</button></h4>
+<h4><button type="button" class="button" (click)="onLoading()" [disabled]="!folder">Check Upload Area</button>
+  &nbsp; &nbsp;<button type="button" class="button" (click)="onReset()">Reset</button></h4>
 <h4 *ngIf="!toShow">The upload area entered by you doesn't exist, please enter a valid upload area</h4>
 
 <div *ngIf="isValid">
@@ -20,7 +21,7 @@
   <button type="button" class="button" (click)="folder && files.length && onUpload()" [disabled]="!folder">Upload Files</button>
 </div>
 
-<div *ngIf="getUploadedFiles().length && isValid">
+<div *ngIf="getUploadedFiles().length && toShow">
     <h3>Uploaded Files</h3>
     <table class="full-width">
         <tr *ngFor="let file of getUploadedFiles()">
@@ -32,5 +33,7 @@
         </tr>
     </table>
 
-  <h4><button type="button" class="button" (click)="onPush()" [disabled]="!folder">Notify</button></h4>
+  <h4 *ngIf="getUploadedFiles().length && isValid">
+    <button type="button" class="button" (click)="sendEmail()" [disabled]="!folder">Notify</button>
+  </h4>
 </div>

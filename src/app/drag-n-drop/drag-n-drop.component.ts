@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import * as S3 from 'aws-sdk/clients/s3';
-import { v4 as uuidv4 } from 'uuid';
-import { Validators } from '@angular/forms';
+import {v4 as uuidv4} from 'uuid';
+import {ContactComponent as cc} from '../email/contact.component';
 
 @Component({
   selector: 'app-drag-n-drop',
@@ -14,18 +14,21 @@ export class DragNDropComponent {
     apiVersion: '2006-03-01',
     region: 'us-west-2',
     credentials: {
-      accessKeyId: 'my key',
-      secretAccessKey: 'my secret key'
+      accessKeyId: 'AKIAIKGZLTRXVRRU5Y4Q',
+      secretAccessKey: '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'
     }
   });
 
   private bucketName = 'dguptaawsbucket';
-  folder = ''
+  folder = '';
+  root = 'root';
   files: any[] = [];
   uploadedFiles = {};
   toShow = true;
   isValid = false;
   email: any;
+  tbDisabled = false;
+  contactComponent = new cc();
 
   onSelect(event) {
     this.files.push(...event.addedFiles.map(file => {
@@ -38,17 +41,20 @@ export class DragNDropComponent {
     this.files.splice(this.files.indexOf(event), 1);
   }
 
-  onUpload() {
+  async onUpload() {
     for (const file of this.files) {
+      file.id = uuidv4();
+
       const params = {
         Bucket: this.bucketName,
-        Key: this.folder + '/' + file.name,
+        Key: this.root + '/' + this.folder + '/' + file.name + '.' + file.id,
         Body: file,
         ACL: 'public-read',
         ContentType: file.type
       };
 
       this.bucket.upload(params).on('httpUploadProgress', evt => {
+        // tslint:disable-next-line:triple-equals
         this.files = this.files.filter(f => file.id != f.id);
         file.loaded = evt.loaded;
         file.total = evt.total;
@@ -65,34 +71,36 @@ export class DragNDropComponent {
     }
   }
 
-  async onLoading(): Promise<boolean> {
+  async onLoading() {
     this.bucket.headObject({
-        Bucket: this.bucketName,
-        Key: this.folder + '/',
-      })
+      Bucket: this.bucketName,
+      Key: this.root + '/' + this.folder + '/',
+    })
       .promise()
       .then(
-        () =>
-        {
+        () => {
           this.isValid = true;
           this.toShow = true;
-          return this.isValid;
+          this.tbDisabled = true;
         },
         err => {
           if (err.code === 'NotFound') {
             this.toShow = false;
             this.isValid = false;
-            return this.isValid;
           }
-          throw err;
         }
       );
-
-    return this.isValid;
   }
 
-  onPush(){
+  onReset(){
+    this.folder = '';
+    this.email = '';
+    this.tbDisabled = false;
+    this.isValid = false;
+  }
 
+  sendEmail() {
+    this.contactComponent.sendMessage(this.email, this.folder);
   }
 
   getUploadedFiles(): any[] {
