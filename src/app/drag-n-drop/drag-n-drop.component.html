@@ -1,13 +1,27 @@
-<h4><label for="folderInput" class="compulsory">Folder Name: </label>
-    <input type="text" [(ngModel)]="folder" class="folder-input"/></h4>
-<ngx-dropzone (change)="onSelect($event)">
-    <ngx-dropzone-label>Drag n' drop some files here, or click to select files</ngx-dropzone-label>
-    <ngx-dropzone-preview *ngFor="let f of files" [removable]="true" (removed)="onRemove(f)">
-        <ngx-dropzone-label>{{ f.name }} - {{ f.size }} bytes</ngx-dropzone-label>
-    </ngx-dropzone-preview>
-</ngx-dropzone>
-<button type="button" class="button" (click)="folder && files.length && onUpload()" [disabled]="!folder">Upload Files</button>
-<div *ngIf="getUploadedFiles().length">
+<h4>
+  <label class="compulsory">Email: </label>
+  <input type="text" [(ngModel)]="email" class="folder-input" required="true"/>
+  <br/><br/>
+  <label class="compulsory">UUID: </label>
+  <input type="text" [(ngModel)]="folder" class="folder-input" required="true" [attr.disabled]="tbDisabled ? '' : null"/>
+</h4>
+
+<h4><button type="button" class="button" (click)="onLoading()" [disabled]="!folder">Check Upload Area</button>
+  &nbsp; &nbsp;<button type="button" class="button" (click)="onReset()">Reset</button></h4>
+<h4 *ngIf="!toShow">The upload area entered by you doesn't exist, please enter a valid upload area</h4>
+
+<div *ngIf="isValid">
+  <ngx-dropzone (change)="onSelect($event)">
+      <ngx-dropzone-label>Drag n' drop some files here, or click to select files</ngx-dropzone-label>
+      <ngx-dropzone-preview *ngFor="let f of files" [removable]="true" (removed)="onRemove(f)">
+          <ngx-dropzone-label>{{ f.name }} - {{ f.size }} bytes</ngx-dropzone-label>
+      </ngx-dropzone-preview>
+  </ngx-dropzone>
+
+  <button type="button" class="button" (click)="folder && files.length && onUpload()" [disabled]="!folder">Upload Files</button>
+</div>
+
+<div *ngIf="getUploadedFiles().length && toShow">
     <h3>Uploaded Files</h3>
     <table class="full-width">
         <tr *ngFor="let file of getUploadedFiles()">
@@ -18,4 +32,8 @@
             </td>
         </tr>
     </table>
+
+  <h4 *ngIf="getUploadedFiles().length && isValid">
+    <button type="button" class="button" (click)="sendEmail()" [disabled]="!folder">Notify</button>
+  </h4>
 </div>
